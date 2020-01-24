@@ -14,7 +14,9 @@ import static org.qualityunit.services.BikeService.BRAND;
 public class FileService {
 
     private static final int BIKE_TYPE = 0;
+    private static final String TXT_FORMAT = "^.*\\.txt$";
     public static int INITIAL_CATALOG_SIZE;
+
 
     public static List<Bike> bikes;
 
@@ -49,19 +51,21 @@ public class FileService {
         if (bikes.size() != INITIAL_CATALOG_SIZE) {
             while (repeat) {
                 try {
-                    if (filePath == null || filePath.isEmpty()) {
+                    if (filePath == null || filePath.isEmpty() || !filePath.matches(TXT_FORMAT)) {
                         System.out.println("\nSpecify file name for saving");
                         filePath = scanner.next();
-                    }
 
-                    if (!filePath.contains(".txt"))
-                        throw new InputMismatchException();
+                        if (!filePath.matches(TXT_FORMAT)) {
+                            throw new InputMismatchException();
+                        }
+                    }
 
                     FileWriter fw = new FileWriter(filePath);
                     for (Bike bike : bikes) {
                         fw.write(bike.toWritableForm());
                     }
                     fw.close();
+
                     checkFilePath(filePath);
                     System.out.println("Catalog successfully saved");
                     repeat = false;
@@ -80,7 +84,7 @@ public class FileService {
     }
 
     private static void checkFilePath(String filePath) throws FileNotFoundException {
-        if (!new File(filePath).exists() || !filePath.contains(".txt"))
+    if (!new File(filePath).exists() || !filePath.matches(TXT_FORMAT))
             throw new FileNotFoundException();
     }
 
