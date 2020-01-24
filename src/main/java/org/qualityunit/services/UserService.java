@@ -37,12 +37,12 @@ public class UserService {
                     BikeService.searchBikeInCatalog();
                     break;
                 case "6":
-                    FileService.writeToFile(bikes);
+                    FileService.writeToFile(bikes, null);
                     break;
                 case "7":
                     if (FileService.INITIAL_CATALOG_SIZE < bikes.size()) {
                         System.out.println("You haven't saved new bikes added to catalog. You will be prompted to save");
-                        FileService.writeToFile(bikes);
+                        FileService.writeToFile(bikes, null);
                     }
                     System.out.println("The program is stopped");
                     System.exit(0);

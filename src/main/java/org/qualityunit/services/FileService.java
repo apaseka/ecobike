@@ -16,9 +16,9 @@ public class FileService {
     private static final int BIKE_TYPE = 0;
     public static int INITIAL_CATALOG_SIZE;
 
-    static List<Bike> bikes;
+    public static List<Bike> bikes;
 
-    public static List<Bike> readFile(String filePath) {
+    public static void readFile(String filePath) {
         try {
             bikes = new ArrayList<>();
             BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath));
@@ -42,16 +42,17 @@ public class FileService {
             String path = checkFilePath(new String[]{});
             readFile(path);
         }
-        return bikes;
     }
 
-    public static void writeToFile(List<Bike> bikes) {
+    public static void writeToFile(List<Bike> bikes, String filePath) {
         boolean repeat = true;
         if (bikes.size() != INITIAL_CATALOG_SIZE) {
             while (repeat) {
                 try {
-                    System.out.println("\nSpecify file name for saving");
-                    String filePath = scanner.next();
+                    if (filePath == null || filePath.isEmpty()) {
+                        System.out.println("\nSpecify file name for saving");
+                        filePath = scanner.next();
+                    }
 
                     if (!filePath.contains(".txt"))
                         throw new InputMismatchException();
