@@ -56,12 +56,16 @@ public class BikeService {
 
     //adding new bike through console
     public static void addBike(BikeType bikeType) {
-        Bike bike = createBikeInstance(bikeType);
-        bikes.add(bike);
-        System.out.println("\r\nAdded new " + bikeType.getTypeName() + ":\n" + bike.toString());
+        if (thread != null && thread.isAlive()) {
+            System.out.println("\r\nAdding bike is prohibited while searching is continue!");
+        } else {
+            Bike bike = createBikeInstance(bikeType);
+            bikes.add(bike);
+            System.out.println("\r\nAdded new " + bikeType.getTypeName() + ":\n" + bike.toString());
+        }
     }
 
-    private static synchronized Bike createBikeInstance(BikeType bikeType) {
+    private static Bike createBikeInstance(BikeType bikeType) {
         //general bike features
         if (searchFlag)
             System.out.println("\r\nType < " + TO_SKIP_FILTER + " > to leave filter empty\r\n");
@@ -135,6 +139,7 @@ public class BikeService {
     }
 
     public static void searchBikeInCatalog() {
+        searchFlag = true;
         System.out.println("\r\nPlease specify your search request:\r\n" +
                 "1 - Find a " + BikeType.F_BIKE.getTypeName() + "\r\n" +
                 "2 - Find a " + BikeType.S_ELEC.getTypeName() + "\r\n" +
@@ -177,6 +182,8 @@ public class BikeService {
     }
 
     private static void search(Bike filterBike) {
+        thread = Thread.currentThread();
+
         Method[] methods = ArrayUtils.addAll(filterBike.getClass().getSuperclass().getDeclaredMethods(), filterBike.getClass().getDeclaredMethods());
         List<Function<Bike, Object>> comparingFields = new ArrayList<>();
 
@@ -202,6 +209,7 @@ public class BikeService {
         if (searchByBrandOnly) {
             Collections.sort(bikes);
             int i = Collections.binarySearch(bikes, filterBike);
+            durableSearchImitation();
             if (i > -1) {
                 System.out.println("\r\nBike is found:\n" + bikes.get(i));
             } else {
@@ -210,11 +218,23 @@ public class BikeService {
         } else {
             List<Bike> foundBikes = filter(filterBike, comparingFields);
             if (foundBikes.size() > 0) {
+                durableSearchImitation();
                 System.out.println("\r\nSearching result:");
                 foundBikes.forEach(System.out::println);
             } else {
+                durableSearchImitation();
                 System.out.println("\r\nThere is no bikes with such parameters in catalog!");
             }
+        }
+        thread = null;
+    }
+
+    //imitation of durable search process
+    private static void durableSearchImitation() {
+        try {
+            Thread.sleep(1000 * 20);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 
