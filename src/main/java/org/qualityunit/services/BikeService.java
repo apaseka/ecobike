@@ -36,8 +36,8 @@ public class BikeService {
     private static final int WEIGHT_FOLD = 3;
     private static final int LIGHTS_FOLD = 4;
 
-    //link to "searching" thread worker to restrict user from adding bike while search is active
-    private static Thread thread;
+    //link Future to restrict user from adding bike while search is active
+    private static CompletableFuture<Void> future;
 
     private static boolean searchByBrandOnly;
     private static boolean searchFlag;
@@ -56,7 +56,7 @@ public class BikeService {
 
     //adding new bike through console
     public static void addBike(BikeType bikeType) {
-        if (thread != null && thread.isAlive()) {
+        if (!future.isDone()) {
             System.out.println("\r\nAdding bike is prohibited while searching is continue!");
         } else {
             Bike bike = createBikeInstance(bikeType);
@@ -178,11 +178,10 @@ public class BikeService {
         searchFlag = false;
         System.out.println("\r\nSearching can take some time, the result will be shown when ready.");
         Bike filterBike = bike;
-        CompletableFuture.runAsync(() -> search(filterBike));
+        future = CompletableFuture.runAsync(() -> search(filterBike));
     }
 
     private static void search(Bike filterBike) {
-        thread = Thread.currentThread();
 
         Method[] methods = ArrayUtils.addAll(filterBike.getClass().getSuperclass().getDeclaredMethods(), filterBike.getClass().getDeclaredMethods());
         List<Function<Bike, Object>> comparingFields = new ArrayList<>();
@@ -226,7 +225,6 @@ public class BikeService {
                 System.out.println("\r\nThere is no bikes with such parameters in catalog!");
             }
         }
-        thread = null;
     }
 
     //imitation of durable search process
